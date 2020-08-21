@@ -42,6 +42,7 @@ foreach ($products as $product): ?>
         <div>
             <h1><?= $product->title; ?></h1>
             <p><?= $product->description; ?></p>
+            <p><?= $product->price; ?></p>
         </div>
         <form action="index.php" method="post">
             <input type="hidden" name="id" value="<?= $product->id; ?>">
