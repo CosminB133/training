@@ -2,27 +2,39 @@
 
 session_start();
 
-if ( !isset( $_SESSION['cart'] ) ) {
-    $_SESSION['cart'] = array();
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
 }
 
-function getAllProducts() {
-    $db_host = DB_HOST;
-    $db_name = DB_NAME;
-    $db_user = DB_USER;
-    $db_pass = DB_PASS;
+function translate($label)
+{
+    return $label;
+}
 
-    $dsn = "mysql:host=$db_host;dbname=$db_name";
+function dbConnection()
+{
+    $dsn = 'mysql:host=' . DB_HOST . ';' . 'dbname=' . DB_NAME;
 
     try {
-        $pdo = new PDO($dsn, $db_user, $db_pass);
+        $pdo = new PDO($dsn, DB_USER, DB_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo;
     } catch (PDOException $e) {
-        $error_message = $e->getMessage();
+        return $e->getMessage();
     }
+}
 
+function getAllProducts($pdo)
+{
     $stmt = $pdo->prepare('SELECT * FROM product');
-    $stmt ->execute();
-
+    $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_OBJ);
 }
+
+function getAllIds($pdo)
+{
+    $stmt = $pdo->prepare('SELECT id FROM product');
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+

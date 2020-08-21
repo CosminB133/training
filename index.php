@@ -2,13 +2,24 @@
 
 require_once 'config.php';
 require_once 'common.php';
-$products = getAllProducts();
 
+$pdo = dbConnection();
 
-if ( isset( $_POST['id'] ) ) {
+$ids = getAllIds($pdo);
+
+if (isset($_POST['id']) && in_array($_POST['id'], $ids) && !in_array($_POST['id'], $_SESSION['cart'])) {
     array_push($_SESSION['cart'], $_POST['id']);
 }
 
+if ($_SESSION['cart']) {
+    $placeholders = str_repeat('?,', count($_SESSION['cart']) - 1) . '?';
+    $sql = "SELECT * FROM product WHERE id NOT IN ($placeholders)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($_SESSION['cart']);
+    $products = $stmt->fetchAll(PDO::FETCH_OBJ);
+} else {
+    $products = getAllProducts($pdo);
+}
 
 ?>
 
@@ -21,23 +32,23 @@ if ( isset( $_POST['id'] ) ) {
     <title>Document</title>
 </head>
 <body>
-    <nav>
-        <a href="cart.php"> To cart </a>
-    </nav>
-    <?php foreach ($products as $product):?>
-        <?php if ( !in_array($product->id, $_SESSION['cart'] ) ): ?>
-            <div style="display: flex">
-                <img src="<?= $product->img_path?>" alt="product image" style="width: 150px; height: 150px">
-                <div>
-                    <h1><?= $product->title; ?></h1>
-                    <p><?= $product->description; ?></p>
-                </div>
-                <form action="index.php" method="post">
-                    <input type="hidden" name="id" value="<?= $product->id; ?>">
-                    <input type="submit" value="Add To Cart">
-                </form>
-            </div>
-        <?php endif; ?>
-    <?php endforeach; ?>
+<nav>
+    <a href="cart.php"> To cart </a>
+</nav>
+<?php
+foreach ($products as $product): ?>
+    <div style="display: flex; width: 700px; margin: auto">
+        <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
+        <div>
+            <h1><?= $product->title; ?></h1>
+            <p><?= $product->description; ?></p>
+        </div>
+        <form action="index.php" method="post">
+            <input type="hidden" name="id" value="<?= $product->id; ?>">
+            <input type="submit" value="<?= translate('Add'); ?>">
+        </form>
+    </div>
+<?php
+endforeach; ?>
 </body>
 </html>
