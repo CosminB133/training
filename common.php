@@ -6,6 +6,10 @@ if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
+if (!isset($_SESSION['auth'])) {
+    $_SESSION['auth'] = false;
+}
+
 function translate($label)
 {
     return $label;
