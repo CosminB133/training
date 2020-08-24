@@ -16,10 +16,7 @@ if (isset($_POST['delId']) && in_array($_POST['delId'], getAllIds($pdo))) {
     $stmt->execute();
 }
 
-$stmt = $pdo->prepare('SELECT * FROM product');
-$stmt->execute();
-$products = $stmt->fetchAll(PDO::FETCH_OBJ);
-
+$products = getAllProducts($pdo);
 
 ?>
 
@@ -52,5 +49,7 @@ foreach ($products as $product): ?>
     </div>
 <?php
 endforeach; ?>
+
+<a href="product.php"> Add new </a>
 </body>
 </html>

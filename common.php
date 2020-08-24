@@ -35,3 +35,9 @@ function getAllIds($pdo)
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
+function getAllProducts($pdo)
+{
+    $stmt = $pdo->prepare('SELECT * FROM product');
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_OBJ);
+}
