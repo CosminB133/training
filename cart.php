@@ -10,28 +10,10 @@ $emailValue = '';
 $commentsValue = '';
 
 $errorName = '';
-$errorEmail = '';
+$errorContact = '';
 $errorComments = '';
 
-if (isset($_POST['name']) && isset($_POST['email']) && isset($_POST['comments'])) {
-    $nameValue = $_POST['name'];
-    $emailValue = $_POST['email'];
-    $emailValue = $_POST['comments'];
 
-    if (!$nameValue) {
-        $errorName = 'Name is required!';
-    }
-
-    if (!$emailValue) {
-        $errorEmail = 'Email is required!';
-    } elseif (!filter_var($emailValue, FILTER_VALIDATE_EMAIL)) {
-        $errorEmail = 'Email is invalid';
-    }
-
-    if (!$commentsValue) {
-        $errorComments = 'Invalid comments!';
-    }
-}
 
 if (isset($_POST['id']) && in_array($_POST['id'], $_SESSION['cart'])) {
     $index = array_search($_POST['id'], $_SESSION['cart']);
@@ -48,6 +30,60 @@ if ($_SESSION['cart']) {
     $products = [];
 }
 
+
+
+if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'])) {
+    $nameValue = $_POST['name'];
+    $contactValue = $_POST['contact'];
+    $commentsValue = $_POST['comments'];
+
+    if (!$nameValue) {
+        $errorName = 'Name is required!';
+    }
+
+    if (!$contactValue) {
+        $errorContact = 'The contact details field is required!';
+    }
+
+    if (!$commentsValue) {
+        $errorComments = 'Comments are required!';
+    }
+
+    if
+    (
+        !$errorContact
+        && !$errorName
+        && !$errorComments
+    ) {
+        $headers  = 'MIME-Version: 1.0' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+
+        $message = '<html><body>';
+        $message .= '<p>Name = ' . $nameValue . '</p>';
+        $message .= '<p>Contact = ' . $contactValue . '</p>';
+        $message .= '<p> Comments = ' . $commentsValue . '</p>';
+
+        foreach ($products as $product) {
+            $message .= '<div style="display: flex; width: 700px; margin: auto">';
+            $message .= '<img src="' . $product->img_path . '" alt="product image" style="width: 150px; height: 150px">';
+            $message .= '<div>';
+            $message .= '<h1>' . $product->title . '</h1>';
+            $message .= '<p>' . $product->description . '</p>';
+            $message .= '<p>' . $product->price . '</p>';
+            $message .= '</div>';
+        }
+
+        $message .= '</body></html>';
+
+        if (mail(MANAGER_EMAIL, 'Order', $message, $headers)) {
+            header('Location: index.php');
+            exit();
+        }
+    }
+}
+
+
+
 ?>
 
 <html>
@@ -61,6 +97,14 @@ if ($_SESSION['cart']) {
 <body>
 <nav>
     <a href="index.php"> Home </a>
+    <?php
+    if ($_SESSION['auth']): ?>
+        <a href="products.php"> Products </a>
+    <?php
+    else: ?>
+        <a href="login.php"> Login </a>
+    <?php
+    endif; ?>
 </nav>
 <?php
 foreach ($products as $i => $product): ?>
@@ -84,21 +128,21 @@ endforeach; ?>
 
     <?php
     if ($errorName): ?>
-        <p style="color: red"> <?= $errorEmail ?> </p> <br>
+        <p style="color: red"> <?= $errorContact ?> </p> <br>
     <?php
     endif; ?>
 
-    <label for="email"> <?= translate('Email :'); ?> </label>
-    <input type="text" name="email" id="email"><br>
+    <label for="contact"> <?= translate('Contact Details :'); ?> </label>
+    <input type="text" name="contact" id="contact" value="<?= $commentsValue ?>"><br>
 
     <?php
-    if ($errorEmail): ?>
-        <p style="color: red"> <?= $errorEmail ?> </p> <br>
+    if ($errorContact): ?>
+        <p style="color: red"> <?= $errorContact ?> </p> <br>
     <?php
     endif; ?>
 
     <label for="comments"> <?= translate('Comments :'); ?> </label>
-    <textarea name="comments" id="comments" cols="30" rows="10"></textarea> <br>
+    <textarea name="comments" id="comments" cols="30" rows="10" value="<?= $commentsValue ?>"></textarea> <br>
 
     <?php
     if ($errorComments): ?>
