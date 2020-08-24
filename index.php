@@ -34,6 +34,14 @@ if ($_SESSION['cart']) {
 <body>
 <nav>
     <a href="cart.php"> To cart </a>
+    <?php
+    if ($_SESSION['auth']): ?>
+        <a href="products.php"> Products </a>
+    <?php
+    else: ?>
+        <a href="login.php"> Login </a>
+    <?php
+    endif; ?>
 </nav>
 <?php
 foreach ($products as $product): ?>
