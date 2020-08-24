@@ -40,12 +40,22 @@ if (
 ) {
     if (!isset($_POST['editId'])) {
         $stmt = $pdo->prepare('INSERT INTO product(title, description, price, img_path) VALUES (:title, :description, :price, :imgPath)');
-        $stmt->bindValue(':title', $_POST['title'], PDO::PARAM_STR);
-        $stmt->bindValue(':description', $_POST['description'], PDO::PARAM_STR);
-        $stmt->bindValue(':price', $_POST['price'], PDO::PARAM_STR);
-        $stmt->bindValue(':imgPath', $_POST['imgPath'], PDO::PARAM_STR);
-        $stmt->execute();
+    } else {
+        $stmt = $pdo->prepare('UPDATE product SET title = :title, description = :description, price = :price, img_path = :imgPath  WHERE id = :id');
+        $stmt->bindValue(':id', $_POST['editId'], PDO::PARAM_INT);
     }
+    $stmt->bindValue(':title', $_POST['title'], PDO::PARAM_STR);
+    $stmt->bindValue(':description', $_POST['description'], PDO::PARAM_STR);
+    $stmt->bindValue(':price', $_POST['price'], PDO::PARAM_STR);
+    $stmt->bindValue(':imgPath', $_POST['imgPath'], PDO::PARAM_STR);
+    $success = $stmt->execute();
+
+    if ($success) {
+        header('Location: products.php');
+        exit();
+    }
+
+
 }
 
 ?>
@@ -60,27 +70,25 @@ if (
 </head>
 <body>
 <form action="product.php" method="post">
-    <form action="cart.php" method="post" style="width: 700px; margin: auto">
-        <label for="title"><?= translate('Title :'); ?> </label>
-        <input type="text" name="title" id="title" value="<?= $title; ?>"><br>
+    <label for="title"><?= translate('Title :'); ?> </label>
+    <input type="text" name="title" id="title" value="<?= $title; ?>"><br>
 
-        <label for="description"><?= translate('Description :'); ?> </label>
-        <textarea name="description" id="description" cols="30" rows="10"><?= $description; ?></textarea><br>
+    <label for="description"><?= translate('Description :'); ?> </label>
+    <textarea name="description" id="description" cols="30" rows="10"><?= $description; ?></textarea><br>
 
-        <label for="price"><?= translate('Price :'); ?> </label>
-        <input type="number" name="price" id="price" value="<?= $price; ?>"><br>
+    <label for="price"><?= translate('Price :'); ?> </label>
+    <input type="number" name="price" id="price" value="<?= $price; ?>"><br>
 
-        <label for="imgPath"><?= translate('Image path :'); ?> </label>
-        <input type="text" name="imgPath" id="imgPath" value="<?= $imgPath; ?>"><br>
+    <label for="imgPath"><?= translate('Image path :'); ?> </label>
+    <input type="text" name="imgPath" id="imgPath" value="<?= $imgPath; ?>"><br>
 
-        <?php
-        if (isset($_GET['id'])): ?>
-            <input type="hidden" name="editId" value="<?= $_GET['id']; ?>">
-        <?php
-        endif; ?>
+    <?php
+    if (isset($_GET['id'])): ?>
+        <input type="hidden" name="editId" value="<?= $_GET['id']; ?>">
+    <?php
+    endif; ?>
 
-        <input type="submit" value="<?= translate('Edit'); ?>">
-    </form>
+    <input type="submit" value="<?= isset($_GET['id'])? translate('Edit') : translate('Add') ; ?>">
 </form>
 </body>
 </html>
