@@ -7,3 +7,5 @@ define('DB_NAME', 'dummytext');
 
 define('USERNAME', 'dummytext');
 define('PASSWORD', 'dummytext');
+
+define('MANAGER_EMAIL', 'dummytext');
