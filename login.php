@@ -10,6 +10,8 @@ if (
     && $_POST['password'] === PASSWORD
 ) {
     $_SESSION['auth'] = true;
+    header('Location: products.php');
+    exit();
 }
 
 ?>
