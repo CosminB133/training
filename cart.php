@@ -13,8 +13,6 @@ $errorName = '';
 $errorContact = '';
 $errorComments = '';
 
-
-
 if (isset($_POST['id']) && in_array($_POST['id'], $_SESSION['cart'])) {
     $index = array_search($_POST['id'], $_SESSION['cart']);
     array_splice($_SESSION['cart'], $index, 1);
@@ -29,8 +27,6 @@ if ($_SESSION['cart']) {
 } else {
     $products = [];
 }
-
-
 
 if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'])) {
     $nameValue = $_POST['name'];
@@ -55,7 +51,7 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
         && !$errorName
         && !$errorComments
     ) {
-        $headers  = 'MIME-Version: 1.0' . "\r\n";
+        $headers = 'MIME-Version: 1.0' . "\r\n";
         $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 
         $message = '<html><body>';
@@ -81,8 +77,6 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
         }
     }
 }
-
-
 
 ?>
 
