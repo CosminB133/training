@@ -67,7 +67,6 @@ if (
             $stmt->bindValue(':id', $_POST['editId'], PDO::PARAM_INT);
         }
 
-
         $stmt->bindValue(':title', strip_tags($title), PDO::PARAM_STR);
         $stmt->bindValue(':description', strip_tags($description), PDO::PARAM_STR);
         $stmt->bindValue(':price', strip_tags($price), PDO::PARAM_STR);
@@ -81,7 +80,13 @@ if (
     }
 }
 
-if (isset($_GET['id'])) {
+if (
+    isset($_GET['id'])
+    && !isset($_POST['title'])
+    && !isset($_POST['description'])
+    && !isset($_POST['price'])
+    && !isset($_POST['imgUrl'])
+) {
     $stmt = $pdo->prepare('SELECT * FROM product WHERE id = :id');
     $stmt->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
     $stmt->execute();
