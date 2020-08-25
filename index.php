@@ -3,12 +3,14 @@
 require_once 'config.php';
 require_once 'common.php';
 
-$pdo = dbConnection();
 
-$ids = getAllIds($pdo);
-
-if (isset($_POST['id']) && in_array($_POST['id'], $ids) && !in_array($_POST['id'], $_SESSION['cart'])) {
-    array_push($_SESSION['cart'], $_POST['id']);
+if (isset($_POST['id']) && !in_array($_POST['id'], $_SESSION['cart'])) {
+    $stmt = $pdo->prepare('SELECT id FROM product WHERE id = :id');
+    $stmt->bindValue(':id', $_POST['id'], PDO::PARAM_INT);
+    $stmt->execute();
+    if ($stmt->fetch(PDO::FETCH_OBJ)) {
+        array_push($_SESSION['cart'], $_POST['id']);
+    }
 }
 
 if ($_SESSION['cart']) {
@@ -33,13 +35,13 @@ if ($_SESSION['cart']) {
 </head>
 <body>
 <nav>
-    <a href="cart.php"> To cart </a>
+    <a href="cart.php"> <?= translate(' To cart '); ?> </a>
     <?php
     if ($_SESSION['auth']): ?>
-        <a href="products.php"> Products </a>
+        <a href="products.php"> <?= translate(' Products '); ?> </a>
     <?php
     else: ?>
-        <a href="login.php"> Login </a>
+        <a href="login.php"> <?= translate(' Login '); ?> </a>
     <?php
     endif; ?>
 </nav>
