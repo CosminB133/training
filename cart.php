@@ -4,7 +4,7 @@ require_once 'config.php';
 require_once 'common.php';
 
 $nameValue = '';
-$emailValue = '';
+$contactValue = '';
 $commentsValue = '';
 
 $errorName = '';
@@ -27,9 +27,9 @@ if ($_SESSION['cart']) {
 }
 
 if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'])) {
-    $nameValue = $_POST['name'];
-    $contactValue = $_POST['contact'];
-    $commentsValue = $_POST['comments'];
+    $nameValue = strip_tags($_POST['name']);
+    $contactValue = strip_tags($_POST['contact']);
+    $commentsValue = strip_tags($_POST['comments']);
 
     if (!$nameValue) {
         $errorName = 'Name is required!';
@@ -53,24 +53,38 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
         $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 
         $message = '<html><body>';
-        $message .= '<p>Name = ' . strip_tags($nameValue). '</p>';
-        $message .= '<p>Contact = ' . strip_tags($contactValue) . '</p>';
-        $message .= '<p> Comments = ' . strip_tags($commentsValue) . '</p>';
+        $message .= '<p>Name = ' . $nameValue . '</p>';
+        $message .= '<p>Contact = ' . $contactValue. '</p>';
+        $message .= '<p> Comments = ' . $commentsValue . '</p>';
 
         foreach ($products as $product) {
             $message .= '<div style="display: flex; width: 700px; margin: auto">';
-            $message .= '<img src="' . strip_tags($product->img_path) . '" alt="product image" style="width: 150px; height: 150px">';
+            $message .= '<img src="' . $product->img_path . '" alt="product image" style="width: 150px; height: 150px">';
             $message .= '<div>';
-            $message .= '<h1>' . strip_tags($product->title) . '</h1>';
-            $message .= '<p>' . strip_tags($product->description) . '</p>';
-            $message .= '<p>' . strip_tags($product->price) . '</p>';
+            $message .= '<h1>' . $product->title . '</h1>';
+            $message .= '<p>' . $product->description . '</p>';
+            $message .= '<p>' . $product->price . '</p>';
             $message .= '</div>';
         }
 
         $message .= '</body></html>';
 
-        if (mail(MANAGER_EMAIL, 'Order', $message, $headers)) {
-            redirect('index');
+        mail(MANAGER_EMAIL, 'Order', $message, $headers);
+
+        $stmt = $pdo->prepare('INSERT INTO `orders`(`name`, `contact_details`, `comments`) VALUES (:name, :contact_details, :comments)');
+        $stmt->bindValue(':name', $nameValue, PDO::PARAM_STR);
+        $stmt->bindValue(':contact_details', $contactValue, PDO::PARAM_STR);
+        $stmt->bindValue(':comments', $commentsValue, PDO::PARAM_STR);
+        $stmt->execute();
+
+        $order_id = $pdo->lastInsertId();
+
+        foreach ($products as $product) {
+            $stmt = $pdo->prepare('INSERT INTO `orders_products`(`id_order`, `id_product`, `price`) VALUES (:id_order, :id_product, :price)');
+            $stmt->bindValue(':id_order', $order_id, PDO::PARAM_INT);
+            $stmt->bindValue(':id_product', $product->id, PDO::PARAM_INT);
+            $stmt->bindValue(':price', $product->price, PDO::PARAM_STR);
+            $stmt->execute();
         }
     }
 }
@@ -117,14 +131,14 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
     <?php endif; ?>
 
     <label for="contact"> <?= translate('Contact Details :'); ?> </label>
-    <input type="text" name="contact" id="contact" value="<?= $commentsValue ?>"><br>
+    <input type="text" name="contact" id="contact" value="<?= $contactValue ?>"><br>
 
     <?php if ($errorContact): ?>
         <p style="color: red"> <?= $errorContact ?> </p> <br>
     <?php endif; ?>
 
     <label for="comments"> <?= translate('Comments :'); ?> </label>
-    <textarea name="comments" id="comments" cols="30" rows="10" value="<?= $commentsValue ?>"></textarea> <br>
+    <textarea name="comments" id="comments" cols="30" rows="10"><?= $commentsValue ?></textarea> <br>
 
     <?php if ($errorComments): ?>
         <p style="color: red"> <?= $errorComments ?> </p> <br>
