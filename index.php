@@ -35,14 +35,11 @@ if ($_SESSION['cart']) {
 <body>
 <nav>
     <a href="cart.php"> <?= translate(' To cart '); ?> </a>
-    <?php
-    if ($_SESSION['auth']): ?>
+    <?php if ($_SESSION['auth']): ?>
         <a href="products.php"> <?= translate(' Products '); ?> </a>
-    <?php
-    else: ?>
+    <?php else: ?>
         <a href="login.php"> <?= translate(' Login '); ?> </a>
-    <?php
-    endif; ?>
+    <?php endif; ?>
 </nav>
 <?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
