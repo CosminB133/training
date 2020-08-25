@@ -4,13 +4,12 @@ require_once 'config.php';
 require_once 'common.php';
 
 
-if (isset($_POST['id']) && !in_array($_POST['id'], $_SESSION['cart'])) {
-    $stmt = $pdo->prepare('SELECT id FROM product WHERE id = :id');
-    $stmt->bindValue(':id', $_POST['id'], PDO::PARAM_INT);
-    $stmt->execute();
-    if ($stmt->fetch(PDO::FETCH_OBJ)) {
-        array_push($_SESSION['cart'], $_POST['id']);
-    }
+if (
+    isset($_POST['id'])
+    && !in_array($_POST['id'], $_SESSION['cart'])
+    && validProductId($pdo, $_POST['id'])
+) {
+    array_push($_SESSION['cart'], $_POST['id']);
 }
 
 if ($_SESSION['cart']) {
@@ -45,8 +44,7 @@ if ($_SESSION['cart']) {
     <?php
     endif; ?>
 </nav>
-<?php
-foreach ($products as $product): ?>
+<?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
         <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
         <div>
@@ -59,7 +57,6 @@ foreach ($products as $product): ?>
             <input type="submit" value="<?= translate('Add'); ?>">
         </form>
     </div>
-<?php
-endforeach; ?>
+<?php endforeach; ?>
 </body>
 </html>
