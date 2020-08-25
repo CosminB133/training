@@ -15,29 +15,26 @@ function translate($label)
     return $label;
 }
 
-function dbConnection()
-{
-    $dsn = 'mysql:host=' . DB_HOST . ';' . 'dbname=' . DB_NAME;
-
-    try {
-        $pdo = new PDO($dsn, DB_USER, DB_PASS);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        return $pdo;
-    } catch (PDOException $e) {
-        return $e->getMessage();
-    }
-}
-
-function getAllIds($pdo)
-{
-    $stmt = $pdo->prepare('SELECT id FROM product');
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
-
 function getAllProducts($pdo)
 {
     $stmt = $pdo->prepare('SELECT * FROM product');
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_OBJ);
 }
+
+function redirect($location)
+{
+    header('Location: ' . $location . '.php');
+    exit();
+}
+
+$dsn = 'mysql:host=' . DB_HOST . ';' . 'dbname=' . DB_NAME;
+
+try {
+    $pdo = new PDO($dsn, DB_USER, DB_PASS);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    return $pdo;
+} catch (PDOException $e) {
+    return $e->getMessage();
+}
+
