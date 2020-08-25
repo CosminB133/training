@@ -28,6 +28,17 @@ function redirect($location)
     exit();
 }
 
+function validProductId($pdo, $id)
+{
+    $stmt = $pdo->prepare('SELECT id FROM product WHERE id = :id');
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+    if ($stmt->fetch(PDO::FETCH_OBJ)) {
+        return true;
+    }
+    return false;
+}
+
 $dsn = 'mysql:host=' . DB_HOST . ';' . 'dbname=' . DB_NAME;
 
 try {
