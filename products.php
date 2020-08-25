@@ -3,14 +3,16 @@
 require_once 'config.php';
 require_once 'common.php';
 
-if (!$_SESSION['auth']) {
-    header('Location: login.php');
-    exit();
+if (isset($_POST['logout'])) {
+    $_SESSION['auth']=false;
+    redirect('index');
 }
 
-$pdo = dbConnection();
+if (!$_SESSION['auth']) {
+    redirect('login');
+}
 
-if (isset($_POST['delId']) && in_array($_POST['delId'], getAllIds($pdo))) {
+if (isset($_POST['delId'])) {
     $stmt = $pdo->prepare('DELETE FROM product WHERE id = :id');
     $stmt->bindValue(':id', $_POST['delId'], PDO::PARAM_INT);
     $stmt->execute();
@@ -30,10 +32,9 @@ $products = getAllProducts($pdo);
 </head>
 <body>
 <nav>
-    <a href="cart.php"> To cart </a>
+    <a href="cart.php"><?php translate('To cart'); ?> </a>
 </nav>
-<?php
-foreach ($products as $product): ?>
+<?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
         <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
         <div>
@@ -41,14 +42,18 @@ foreach ($products as $product): ?>
             <p><?= $product->description; ?></p>
             <p><?= $product->price; ?></p>
         </div>
-        <a href="product.php?id=<?= $product->id; ?>">Edit</a>
+        <a href="product.php?id=<?= $product->id; ?>"><?= translate(' Edit '); ?></a>
         <form action="products.php" method="post">
             <input type="hidden" name="delId" value="<?= $product->id; ?>">
-            <input type="submit" value="<?= translate('Delete'); ?>">
+            <input type="submit" value="<?= translate(' Delete '); ?>">
         </form>
     </div>
-<?php
-endforeach; ?>
+<?php endforeach; ?>
+
+<form action="product.php" method="post">
+    <input type="hidden" name="logout">
+    <input type="submit" value="<?= translate('Logout') ?>">
+</form>
 
 <a href="product.php"> Add new </a>
 </body>
