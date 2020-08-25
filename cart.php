@@ -3,8 +3,6 @@
 require_once 'config.php';
 require_once 'common.php';
 
-$pdo = dbConnection();
-
 $nameValue = '';
 $emailValue = '';
 $commentsValue = '';
@@ -55,25 +53,24 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
         $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 
         $message = '<html><body>';
-        $message .= '<p>Name = ' . $nameValue . '</p>';
-        $message .= '<p>Contact = ' . $contactValue . '</p>';
-        $message .= '<p> Comments = ' . $commentsValue . '</p>';
+        $message .= '<p>Name = ' . strip_tags($nameValue). '</p>';
+        $message .= '<p>Contact = ' . strip_tags($contactValue) . '</p>';
+        $message .= '<p> Comments = ' . strip_tags($commentsValue) . '</p>';
 
         foreach ($products as $product) {
             $message .= '<div style="display: flex; width: 700px; margin: auto">';
-            $message .= '<img src="' . $product->img_path . '" alt="product image" style="width: 150px; height: 150px">';
+            $message .= '<img src="' . strip_tags($product->img_path) . '" alt="product image" style="width: 150px; height: 150px">';
             $message .= '<div>';
-            $message .= '<h1>' . $product->title . '</h1>';
-            $message .= '<p>' . $product->description . '</p>';
-            $message .= '<p>' . $product->price . '</p>';
+            $message .= '<h1>' . strip_tags($product->title) . '</h1>';
+            $message .= '<p>' . strip_tags($product->description) . '</p>';
+            $message .= '<p>' . strip_tags($product->price) . '</p>';
             $message .= '</div>';
         }
 
         $message .= '</body></html>';
 
         if (mail(MANAGER_EMAIL, 'Order', $message, $headers)) {
-            header('Location: index.php');
-            exit();
+            redirect('index');
         }
     }
 }
@@ -90,18 +87,14 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
 </head>
 <body>
 <nav>
-    <a href="index.php"> Home </a>
-    <?php
-    if ($_SESSION['auth']): ?>
-        <a href="products.php"> Products </a>
-    <?php
-    else: ?>
-        <a href="login.php"> Login </a>
-    <?php
-    endif; ?>
+    <a href="index.php">  <?= translate('Home') ?> </a>
+    <?php if ($_SESSION['auth']): ?>
+        <a href="products.php"> <?= translate('Products') ?> </a>
+    <?php else: ?>
+        <a href="login.php"> <?= translate('Login') ?> </a>
+    <?php endif; ?>
 </nav>
-<?php
-foreach ($products as $i => $product): ?>
+<?php foreach ($products as $i => $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
         <img src="<?= $product->img_path ?>" alt="product image" style="width: 150px; height: 150px">
         <div>
@@ -114,35 +107,28 @@ foreach ($products as $i => $product): ?>
             <input type="submit" value="<?= translate('Remove Fom Cart'); ?>">
         </form>
     </div>
-<?php
-endforeach; ?>
+<?php endforeach; ?>
 <form action="cart.php" method="post" style="width: 700px; margin: auto">
     <label for="name"><?= translate('Name :'); ?> </label>
     <input type="text" name="name" id="name" value="<?= $nameValue ?>"><br>
 
-    <?php
-    if ($errorName): ?>
+    <?php if ($errorName): ?>
         <p style="color: red"> <?= $errorContact ?> </p> <br>
-    <?php
-    endif; ?>
+    <?php endif; ?>
 
     <label for="contact"> <?= translate('Contact Details :'); ?> </label>
     <input type="text" name="contact" id="contact" value="<?= $commentsValue ?>"><br>
 
-    <?php
-    if ($errorContact): ?>
+    <?php if ($errorContact): ?>
         <p style="color: red"> <?= $errorContact ?> </p> <br>
-    <?php
-    endif; ?>
+    <?php endif; ?>
 
     <label for="comments"> <?= translate('Comments :'); ?> </label>
     <textarea name="comments" id="comments" cols="30" rows="10" value="<?= $commentsValue ?>"></textarea> <br>
 
-    <?php
-    if ($errorComments): ?>
+    <?php if ($errorComments): ?>
         <p style="color: red"> <?= $errorComments ?> </p> <br>
-    <?php
-    endif; ?>
+    <?php endif; ?>
 
     <input type="submit" value="<?= translate('Check Out') ?>">
 </form>
