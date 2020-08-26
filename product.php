@@ -7,7 +7,7 @@ if (!$_SESSION['auth']) {
     redirect('login');
 }
 
-if (!isset($_POST['editId']) || !validProductId($pdo, $_POST['editId'])) {
+if (isset($_POST['editId']) && !validProductId($pdo, $_POST['editId'])) {
     redirect('products');
 }
 
