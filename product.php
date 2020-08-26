@@ -113,7 +113,7 @@ if (
     <a href="login.php"> <?= translate('Login') ?> </a>
 </nav>
 
-<form action="product.php" method="post">
+<form action="product.php<?= (isset($_GET['id']))? '?id='.$_GET['id']: '' ?>" method="post">
     <label for="title"><?= translate('Title :'); ?> </label>
     <input type="text" name="title" id="title" value="<?= $data['title']; ?>"><br>
 
