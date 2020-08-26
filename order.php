@@ -1,4 +1,5 @@
 <?php
+
 require_once 'config.php';
 require_once 'common.php';
 
@@ -11,16 +12,20 @@ $stmt->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 $stmt->execute();
 $order = $stmt->fetch(PDO::FETCH_OBJ);
 
-$stmt = $pdo->prepare('SELECT * FROM orders_products INNER JOIN product ON product.id = orders_products.id_product WHERE orders_products.id_order = :id');
+$stmt = $pdo->prepare(
+    'SELECT img_path, title, description, orders_products.price  
+FROM orders_products INNER JOIN product ON product.id = orders_products.id_product 
+WHERE orders_products.id_order = :id'
+);
 $stmt->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
 $stmt->execute();
 $products = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 print_r($products);
 
-//if (!$order) {
-//    redirect('orders');
-//}
+if (!$order) {
+    redirect('orders');
+}
 
 ?>
 
