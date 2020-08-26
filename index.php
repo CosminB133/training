@@ -49,6 +49,9 @@ if ($_SESSION['cart']) {
             <p><?= $product->description; ?></p>
             <p><?= $product->price; ?></p>
         </div>
+
+        <a href="review.php?id=<?= $product->id?>"><?= translate('View comments')?></a>
+
         <form action="index.php" method="post">
             <input type="hidden" name="id" value="<?= $product->id; ?>">
             <input type="submit" value="<?= translate('Add'); ?>">

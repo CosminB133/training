@@ -3,104 +3,97 @@
 require_once 'config.php';
 require_once 'common.php';
 
-$errorImgUrl = '';
-$errorDescription = '';
-$errorTitle = '';
-$errorPrice = '';
-
-$title = '';
-$description = '';
-$price = '';
-$imgUrl = '';
-
 if (!$_SESSION['auth']) {
     redirect('login');
 }
 
-if (isset($_POST['editId']) && !validProductId($pdo, $_POST['editId'])) {
+if (!isset($_POST['editId']) || !validProductId($pdo, $_POST['editId'])) {
     redirect('products');
 }
 
-if (
-    isset($_POST['title'])
-    && isset($_POST['description'])
-    && isset($_POST['price'])
-    && isset($_POST['imgUrl'])
-) {
-    $title = strip_tags($_POST['title']);
-    $description = strip_tags($_POST['description']);
-    $price = strip_tags($_POST['price']);
-    $imgUrl = strip_tags($_POST['imgUrl']);
+$data['title'] = '';
+$data['description'] = '';
+$data['price'] = '';
+$data['imgUrl'] = '';
 
-    if (!$imgUrl) {
-        $errorImgUrl = 'Url is required';
-    } elseif (!filter_var($imgUrl, FILTER_VALIDATE_URL)) {
-        $errorImgUrl = 'Invalid Url';
+$reviews = [];
+$errors = [];
+
+if (isset($_POST['submit'])) {
+    $data['title'] = strip_tags($_POST['title']);
+    $data['description'] = strip_tags($_POST['description']);
+    $data['price'] = strip_tags($_POST['price']);
+    $data['imgUrl'] = strip_tags($_POST['imgUrl']);
+
+    if (!$data['imgUrl']) {
+        $errors['img'] = 'Url is required';
+    } elseif (!filter_var($data['imgUrl'], FILTER_VALIDATE_URL)) {
+        $errors['img'] = 'Invalid Url';
     }
 
-    if (!$description) {
-        $errorDescription = 'Description is required';
+    if (!$data['description']) {
+        $errors['description'] = 'Description is required';
     }
 
-    if (!$price) {
-        $errorPrice = 'Price is required';
+    if (!$data['price']) {
+        $errors['price'] = 'Price is required';
     } elseif (
-        !filter_var($price, FILTER_VALIDATE_FLOAT)
-        || (float)$price < 0
+        !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
+        || (float)$data['price'] < 0
     ) {
-        $errorPrice = 'Enter an valid number';
+        $errors['price'] = 'Enter an valid number';
     }
 
-    if (!$title) {
-        $errorTitle = 'Title is required';
+    if (!$data['title']) {
+        $errors['title'] = 'Title is required';
     }
 
-    if (!$errorDescription && !$errorImgUrl && !$errorTitle && !$errorPrice) {
+    if (!$errors) {
         if (!isset($_POST['editId'])) {
             $stmt = $pdo->prepare(
                 'INSERT INTO product(title, description, price, img_path) VALUES (:title, :description, :price, :imgUrl)'
             );
+            $success = $stmt->execute([$data['title'], $data['description'], $data['price'], $data['imgUrl']]);
         } else {
             $stmt = $pdo->prepare(
-                'UPDATE product SET title = :title, description = :description, price = :price, img_path = :imgUrl  WHERE id = :id'
+                'UPDATE product SET title = ?, description = ?, price = ?, img_path = ?  WHERE id = ?'
             );
-            $stmt->bindValue(':id', $_POST['editId'], PDO::PARAM_INT);
+            $success = $stmt->execute([$data['title'], $data['description'], $data['price'], $data['imgUrl'], $_POST['editId']]);
         }
 
-        $stmt->bindValue(':title', strip_tags($title), PDO::PARAM_STR);
-        $stmt->bindValue(':description', strip_tags($description), PDO::PARAM_STR);
-        $stmt->bindValue(':price', strip_tags($price), PDO::PARAM_STR);
-        $stmt->bindValue(':imgUrl', strip_tags($imgUrl), PDO::PARAM_STR);
-        $success = $stmt->execute();
-
         if ($success) {
-            header('Location: products.php');
-            exit();
+            redirect('products');
         }
     }
 }
 
 if (
     isset($_GET['id'])
-    && !isset($_POST['title'])
-    && !isset($_POST['description'])
-    && !isset($_POST['price'])
-    && !isset($_POST['imgUrl'])
 ) {
-    $stmt = $pdo->prepare('SELECT * FROM product WHERE id = :id');
-    $stmt->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
-    $stmt->execute();
+    $stmt = $pdo->prepare('SELECT * FROM product WHERE id = ?');
+    $stmt->execute([$_GET['id']]);
     $product = $stmt->fetch(PDO::FETCH_OBJ);
 
     if (!$product) {
         redirect('products');
     }
 
-    $title = $product->title;
-    $description = $product->description;
-    $price = $product->price;
-    $imgUrl = $product->img_path;
+    $data['title'] = $product->title;
+    $data['description'] = $product->description;
+    $data['price'] = $product->price;
+    $data['imgUrl'] = $product->img_path;
+
+    if (
+        isset($_POST['delCommentId'])
+        && $_POST['delCommentId']
+    ) {
+        $stmt = $pdo->prepare('DELETE FROM reviews WHERE id = ?');
+        $stmt->execute([$_POST['delCommentId']]);
+    }
+
+    $reviews = getReviews($pdo, $product->id);
 }
+
 
 ?>
 
@@ -122,38 +115,51 @@ if (
 
 <form action="product.php" method="post">
     <label for="title"><?= translate('Title :'); ?> </label>
-    <input type="text" name="title" id="title" value="<?= $title; ?>"><br>
+    <input type="text" name="title" id="title" value="<?= $data['title']; ?>"><br>
 
-    <?php if ($errorTitle): ?>
-        <p style="color: red"> <?= $errorTitle ?> </p> <br>
+    <?php if (array_key_exists('title', $errors)): ?>
+        <p style="color: red"> <?= $errors['title'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="description"><?= translate('Description :'); ?> </label>
-    <textarea name="description" id="description" cols="30" rows="10"><?= $description; ?></textarea><br>
+    <textarea name="description" id="description" cols="30" rows="10"><?= $data['description']; ?></textarea><br>
 
-    <?php if ($errorDescription): ?>
-        <p style="color: red"> <?= $errorDescription ?> </p> <br>
+    <?php if (array_key_exists('description', $errors)): ?>
+        <p style="color: red"> <?= $errors['description'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="price"><?= translate('Price :'); ?> </label>
-    <input type="text" name="price" id="price" value="<?= $price; ?>"><br>
+    <input type="text" name="price" id="price" value="<?= $data['price']; ?>"><br>
 
-    <?php if ($errorPrice): ?>
-        <p style="color: red"> <?= $errorPrice ?> </p> <br>
+    <?php if (array_key_exists('price', $errors)): ?>
+        <p style="color: red"> <?= $errors['price'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="imgUrl"><?= translate('Image path :'); ?> </label>
-    <input type="text" name="imgUrl" id="imgUrl" value="<?= $imgUrl; ?>"><br>
+    <input type="text" name="imgUrl" id="imgUrl" value="<?= $data['imgUrl']; ?>"><br>
 
-    <?php if ($errorImgUrl): ?>
-        <p style="color: red"> <?= $errorImgUrl ?> </p> <br>
+    <?php if (array_key_exists('img', $errors)): ?>
+        <p style="color: red"> <?= $errors['img'] ?> </p> <br>
     <?php endif; ?>
 
     <?php if (isset($_GET['id'])): ?>
         <input type="hidden" name="editId" value="<?= $_GET['id']; ?>">
     <?php endif; ?>
 
-    <input type="submit" value="<?= isset($_GET['id']) ? translate('Edit') : translate('Add'); ?>">
+    <input type="submit" name="submit" value="<?= isset($_GET['id']) ? translate('Edit') : translate('Add'); ?>">
+
 </form>
+
+<?php foreach ($reviews as $review): ?>
+    <div>
+        <h1><?= $review->rating; ?></h1>
+        <p><?= $review->comment; ?></p>
+    </div>
+
+    <form action="product.php?id=<?= $product->id ?>" method="post">
+        <input type="hidden" name="delCommentId" value="<?= $review->id ?>">
+        <input type="submit" value="<?= translate('Delete') ?>">
+    </form>
+<?php endforeach; ?>
 </body>
 </html>

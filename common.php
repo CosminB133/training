@@ -49,3 +49,16 @@ try {
     return $e->getMessage();
 }
 
+function getProductById($pdo, $id)
+{
+    $stmt = $pdo->prepare('SELECT * FROM product WHERE id = ?');
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_OBJ);
+}
+
+function getReviews($pdo, $id) {
+    $stmt = $pdo->prepare('SELECT * FROM reviews WHERE product_id = ?');
+    $stmt->execute([$id]);
+    return $stmt->fetchALL(PDO::FETCH_OBJ);
+}
+
