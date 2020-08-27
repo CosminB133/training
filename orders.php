@@ -5,7 +5,7 @@ require_once 'common.php';
 
 $stmt = $pdo->prepare(
     'SELECT orders.id, orders.creation_date, orders.name, orders.contact_details, orders.comments, SUM(price) AS price
-     FROM orders LEFT JOIN orders_products ON orders.id = orders_products.id_order 
+     FROM orders LEFT JOIN orders_products ON orders.id = orders_products.order_id 
      GROUP by orders.id, orders.creation_date, orders.name, orders.contact_details, orders.comments'
 );
 $stmt->execute();
