@@ -7,21 +7,18 @@ if (!isset($_GET['id'])) {
     redirect('orders');
 }
 
-$stmt = $pdo->prepare('SELECT * FROM orders WHERE id = :id');
-$stmt->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
-$stmt->execute();
+$stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ?');
+$stmt->execute([$_GET['id']]);
 $order = $stmt->fetch(PDO::FETCH_OBJ);
 
 $stmt = $pdo->prepare(
     'SELECT img_path, title, description, orders_products.price  
-FROM orders_products INNER JOIN product ON product.id = orders_products.id_product 
-WHERE orders_products.id_order = :id'
+FROM orders_products INNER JOIN product ON product.id = orders_products.product_id 
+WHERE orders_products.order_id = ?'
 );
-$stmt->bindValue(':id', $_GET['id'], PDO::PARAM_INT);
-$stmt->execute();
+$stmt->execute([$_GET['id']]);
 $products = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-print_r($products);
 
 if (!$order) {
     redirect('orders');
@@ -42,7 +39,6 @@ if (!$order) {
 <p><?= $order->creation_date; ?></p>
 <p><?= $order->name; ?></p>
 <p><?= $order->comments; ?></p>
-<a href="order.php?id= <?= $order->id; ?>">View</a>
 
 <?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
