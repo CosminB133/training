@@ -102,23 +102,21 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
     </div>
 <?php endforeach; ?>
 <form action="cart.php" method="post" style="width: 700px; margin: auto">
+
     <label for="name"><?= translate('Name :'); ?> </label>
     <input type="text" name="name" id="name" value="<?= $data['name'] ?>"><br>
-
     <?php if (array_key_exists('name', $errors)): ?>
         <p style="color: red"> <?= $errors['name'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="contact"> <?= translate('Contact Details :'); ?> </label>
     <input type="text" name="contact" id="contact" value="<?= $data['contact'] ?>"><br>
-
     <?php if (array_key_exists('contact', $errors)): ?>
         <p style="color: red"> <?= $errors['contact'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="comments"> <?= translate('Comments :'); ?> </label>
     <textarea name="comments" id="comments" cols="30" rows="10"><?= $data['comments'] ?></textarea> <br>
-
     <?php if (array_key_exists('comments', $errors)): ?>
         <p style="color: red"> <?= $errors['comments'] ?> </p> <br>
     <?php endif; ?>
