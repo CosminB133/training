@@ -56,7 +56,8 @@ function getProductById($pdo, $id)
     return $stmt->fetch(PDO::FETCH_OBJ);
 }
 
-function getReviews($pdo, $id) {
+function getReviews($pdo, $id)
+{
     $stmt = $pdo->prepare('SELECT * FROM reviews WHERE product_id = ?');
     $stmt->execute([$id]);
     return $stmt->fetchALL(PDO::FETCH_OBJ);
