@@ -31,7 +31,7 @@ $products = getAllProducts($pdo);
 </head>
 <body>
 <nav>
-    <a href="cart.php"><?php translate('To cart'); ?> </a>
+    <a href="cart.php"><?php translate('To cart'); ?></a>
 </nav>
 <?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
@@ -41,10 +41,10 @@ $products = getAllProducts($pdo);
             <p><?= $product->description; ?></p>
             <p><?= $product->price; ?></p>
         </div>
-        <a href="product.php?id=<?= $product->id; ?>"><?= translate(' Edit '); ?></a>
+        <a href="product.php?id=<?= $product->id; ?>"><?= translate('Edit'); ?></a>
         <form action="products.php" method="post">
             <input type="hidden" name="del_id" value="<?= $product->id; ?>">
-            <input type="submit" value="<?= translate(' Delete '); ?>">
+            <input type="submit" value="<?= translate('Delete'); ?>">
         </form>
     </div>
 <?php endforeach; ?>
