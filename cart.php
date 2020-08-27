@@ -24,7 +24,7 @@ if ($_SESSION['cart']) {
     $products = [];
 }
 
-if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'])) {
+if (isset($_POST['submit'])) {
     $data['name'] = strip_tags($_POST['name']);
     $data['contact'] = strip_tags($_POST['contact']);
     $data['comments'] = strip_tags($_POST['comments']);
@@ -121,7 +121,7 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
         <p style="color: red"> <?= $errors['comments'] ?> </p> <br>
     <?php endif; ?>
 
-    <input type="submit" value="<?= translate('Check Out') ?>">
+    <input type="submit" name="submit" value="<?= translate('Check Out') ?>">
 </form>
 </body>
 </html>
