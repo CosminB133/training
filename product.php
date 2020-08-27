@@ -51,7 +51,7 @@ if (isset($_POST['submit'])) {
     if (!$errors) {
         if (!isset($_POST['editId'])) {
             $stmt = $pdo->prepare(
-                'INSERT INTO product(title, description, price, img_path) VALUES (:title, :description, :price, :imgUrl)'
+                'INSERT INTO product(title, description, price, img_path) VALUES (?, ?, ?, ?)'
             );
             $success = $stmt->execute([$data['title'], $data['description'], $data['price'], $data['imgUrl']]);
         } else {
