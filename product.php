@@ -49,7 +49,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (!$errors) {
-        if (!isset($_POST['editId'])) {
+        if (!isset($_GET['id'])) {
             $stmt = $pdo->prepare(
                 'INSERT INTO product(title, description, price, img_path) VALUES (?, ?, ?, ?)'
             );
@@ -114,40 +114,32 @@ if (
 </nav>
 
 <form action="product.php<?= (isset($_GET['id']))? '?id='.$_GET['id']: '' ?>" method="post">
+
     <label for="title"><?= translate('Title :'); ?> </label>
     <input type="text" name="title" id="title" value="<?= $data['title']; ?>"><br>
-
     <?php if (array_key_exists('title', $errors)): ?>
         <p style="color: red"> <?= $errors['title'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="description"><?= translate('Description :'); ?> </label>
     <textarea name="description" id="description" cols="30" rows="10"><?= $data['description']; ?></textarea><br>
-
     <?php if (array_key_exists('description', $errors)): ?>
         <p style="color: red"> <?= $errors['description'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="price"><?= translate('Price :'); ?> </label>
     <input type="text" name="price" id="price" value="<?= $data['price']; ?>"><br>
-
     <?php if (array_key_exists('price', $errors)): ?>
         <p style="color: red"> <?= $errors['price'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="imgUrl"><?= translate('Image path :'); ?> </label>
     <input type="text" name="imgUrl" id="imgUrl" value="<?= $data['imgUrl']; ?>"><br>
-
     <?php if (array_key_exists('img', $errors)): ?>
         <p style="color: red"> <?= $errors['img'] ?> </p> <br>
     <?php endif; ?>
 
-    <?php if (isset($_GET['id'])): ?>
-        <input type="hidden" name="editId" value="<?= $_GET['id']; ?>">
-    <?php endif; ?>
-
     <input type="submit" name="submit" value="<?= isset($_GET['id']) ? translate('Edit') : translate('Add'); ?>">
-
 </form>
 
 <?php foreach ($reviews as $review): ?>
