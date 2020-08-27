@@ -25,7 +25,6 @@ if ($_SESSION['cart']) {
 }
 
 if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'])) {
-    $errors = [];
     $data['name'] = strip_tags($_POST['name']);
     $data['contact'] = strip_tags($_POST['contact']);
     $data['comments'] = strip_tags($_POST['comments']);
