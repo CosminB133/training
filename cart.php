@@ -44,9 +44,6 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
     if (!$errors) {
 
         $stmt = $pdo->prepare('INSERT INTO orders(name, contact_details, comments) VALUES (?, ?, ?)');
-        $stmt->bindValue(':name', $data['name'], PDO::PARAM_STR);
-        $stmt->bindValue(':contact_details', $data['contact'], PDO::PARAM_STR);
-        $stmt->bindValue(':comments', $data['comments'], PDO::PARAM_STR);
         $stmt->execute([$data['name'], $data['contact'], $data['comments']]);
 
         $orderId = $pdo->lastInsertId();
