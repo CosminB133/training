@@ -3,13 +3,11 @@
 require_once 'config.php';
 require_once 'common.php';
 
-$nameValue = '';
-$contactValue = '';
-$commentsValue = '';
+$data['name'] = '';
+$data['comments'] = '';
+$data['contact'] = '';
 
-$errorName = '';
-$errorContact = '';
-$errorComments = '';
+$errors = [];
 
 if (isset($_POST['id']) && in_array($_POST['id'], $_SESSION['cart'])) {
     $index = array_search($_POST['id'], $_SESSION['cart']);
@@ -27,65 +25,50 @@ if ($_SESSION['cart']) {
 }
 
 if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'])) {
-    $nameValue = strip_tags($_POST['name']);
-    $contactValue = strip_tags($_POST['contact']);
-    $commentsValue = strip_tags($_POST['comments']);
+    $errors = [];
+    $data['name'] = strip_tags($_POST['name']);
+    $data['contact'] = strip_tags($_POST['contact']);
+    $data['comments'] = strip_tags($_POST['comments']);
 
-    if (!$nameValue) {
-        $errorName = 'Name is required!';
+    if (!$data['name']) {
+        $errors['name'] = 'Name is required!';
     }
 
-    if (!$contactValue) {
-        $errorContact = 'The contact details field is required!';
+    if (!$data['contact']) {
+        $errors['contact'] = 'The contact details field is required!';
     }
 
-    if (!$commentsValue) {
-        $errorComments = 'Comments are required!';
+    if (!$data['comments']) {
+        $errors['comments'] = 'Comments are required!';
     }
 
-    if
-    (
-        !$errorContact
-        && !$errorName
-        && !$errorComments
-    ) {
+    if (!$errors) {
+
+        $stmt = $pdo->prepare('INSERT INTO orders(name, contact_details, comments) VALUES (?, ?, ?)');
+        $stmt->bindValue(':name', $data['name'], PDO::PARAM_STR);
+        $stmt->bindValue(':contact_details', $data['contact'], PDO::PARAM_STR);
+        $stmt->bindValue(':comments', $data['comments'], PDO::PARAM_STR);
+        $stmt->execute([$data['name'], $data['contact'], $data['comments']]);
+
+        $orderId = $pdo->lastInsertId();
+
+        foreach ($products as $product) {
+            $stmt = $pdo->prepare('INSERT INTO orders_products(order_id, product_id, price) VALUES (?, ?, ?)');
+            $stmt->execute([$orderId, $product->id, $product->price]);
+        }
+
         $headers = 'MIME-Version: 1.0' . "\r\n";
         $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 
-        $message = '<html><body>';
-        $message .= '<p>Name = ' . $nameValue . '</p>';
-        $message .= '<p>Contact = ' . $contactValue. '</p>';
-        $message .= '<p> Comments = ' . $commentsValue . '</p>';
+        ob_start();
 
-        foreach ($products as $product) {
-            $message .= '<div style="display: flex; width: 700px; margin: auto">';
-            $message .= '<img src="' . $product->img_path . '" alt="product image" style="width: 150px; height: 150px">';
-            $message .= '<div>';
-            $message .= '<h1>' . $product->title . '</h1>';
-            $message .= '<p>' . $product->description . '</p>';
-            $message .= '<p>' . $product->price . '</p>';
-            $message .= '</div>';
-        }
+        require_once 'email_template.php';
 
-        $message .= '</body></html>';
+        $message = ob_get_clean();
 
         mail(MANAGER_EMAIL, 'Order', $message, $headers);
 
-        $stmt = $pdo->prepare('INSERT INTO `orders`(`name`, `contact_details`, `comments`) VALUES (:name, :contact_details, :comments)');
-        $stmt->bindValue(':name', $nameValue, PDO::PARAM_STR);
-        $stmt->bindValue(':contact_details', $contactValue, PDO::PARAM_STR);
-        $stmt->bindValue(':comments', $commentsValue, PDO::PARAM_STR);
-        $stmt->execute();
-
-        $order_id = $pdo->lastInsertId();
-
-        foreach ($products as $product) {
-            $stmt = $pdo->prepare('INSERT INTO `orders_products`(`id_order`, `id_product`, `price`) VALUES (:id_order, :id_product, :price)');
-            $stmt->bindValue(':id_order', $order_id, PDO::PARAM_INT);
-            $stmt->bindValue(':id_product', $product->id, PDO::PARAM_INT);
-            $stmt->bindValue(':price', $product->price, PDO::PARAM_STR);
-            $stmt->execute();
-        }
+        redirect('index');
     }
 }
 
@@ -108,7 +91,7 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
         <a href="login.php"> <?= translate('Login') ?> </a>
     <?php endif; ?>
 </nav>
-<?php foreach ($products as $i => $product): ?>
+<?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
         <img src="<?= $product->img_path ?>" alt="product image" style="width: 150px; height: 150px">
         <div>
@@ -124,24 +107,24 @@ if (isset($_POST['name']) && isset($_POST['contact']) && isset($_POST['comments'
 <?php endforeach; ?>
 <form action="cart.php" method="post" style="width: 700px; margin: auto">
     <label for="name"><?= translate('Name :'); ?> </label>
-    <input type="text" name="name" id="name" value="<?= $nameValue ?>"><br>
+    <input type="text" name="name" id="name" value="<?= $data['name'] ?>"><br>
 
-    <?php if ($errorName): ?>
-        <p style="color: red"> <?= $errorContact ?> </p> <br>
+    <?php if (array_key_exists('name', $errors)): ?>
+        <p style="color: red"> <?= $errors['name'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="contact"> <?= translate('Contact Details :'); ?> </label>
-    <input type="text" name="contact" id="contact" value="<?= $contactValue ?>"><br>
+    <input type="text" name="contact" id="contact" value="<?= $data['contact'] ?>"><br>
 
-    <?php if ($errorContact): ?>
-        <p style="color: red"> <?= $errorContact ?> </p> <br>
+    <?php if (array_key_exists('contact', $errors)): ?>
+        <p style="color: red"> <?= $errors['contact'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="comments"> <?= translate('Comments :'); ?> </label>
-    <textarea name="comments" id="comments" cols="30" rows="10"><?= $commentsValue ?></textarea> <br>
+    <textarea name="comments" id="comments" cols="30" rows="10"><?= $data['comments'] ?></textarea> <br>
 
-    <?php if ($errorComments): ?>
-        <p style="color: red"> <?= $errorComments ?> </p> <br>
+    <?php if (array_key_exists('comments', $errors)): ?>
+        <p style="color: red"> <?= $errors['comments'] ?> </p> <br>
     <?php endif; ?>
 
     <input type="submit" value="<?= translate('Check Out') ?>">
