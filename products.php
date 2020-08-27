@@ -13,9 +13,8 @@ if (!$_SESSION['auth']) {
 }
 
 if (isset($_POST['delId'])) {
-    $stmt = $pdo->prepare('DELETE FROM product WHERE id = :id');
-    $stmt->bindValue(':id', $_POST['delId'], PDO::PARAM_INT);
-    $stmt->execute();
+    $stmt = $pdo->prepare('DELETE FROM product WHERE id = ?');
+    $stmt->execute([$_POST['delId']]);
 }
 
 $products = getAllProducts($pdo);
