@@ -30,9 +30,8 @@ function redirect($location)
 
 function validProductId($pdo, $id)
 {
-    $stmt = $pdo->prepare('SELECT id FROM product WHERE id = :id');
-    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-    $stmt->execute();
+    $stmt = $pdo->prepare('SELECT id FROM product WHERE id = ?');
+    $stmt->execute([$id]);
     if ($stmt->fetch(PDO::FETCH_OBJ)) {
         return true;
     }
