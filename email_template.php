@@ -1,7 +1,7 @@
 <html>
 <body>
 <p>Name = <?= $data['name'] ?></p>
-<p>Contact = <?= $data['value'] ?></p>
+<p>Contact = <?= $data['contact'] ?></p>
 <p> Comment = <?= $data['comments'] ?></p>
 <?php foreach ($products as $product): ?>
 <div style="display: flex; width: 700px; margin: auto">
