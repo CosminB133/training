@@ -4,7 +4,7 @@ require_once 'config.php';
 require_once 'common.php';
 
 if (isset($_POST['logout'])) {
-    $_SESSION['auth']=false;
+    $_SESSION['auth'] = false;
     redirect('index');
 }
 
@@ -12,7 +12,7 @@ if (!$_SESSION['auth']) {
     redirect('login');
 }
 
-if (isset($_POST['delId'])) {
+if (isset($_POST['del_id']) && validProductId($pdo, $_POST['del_id'])) {
     $stmt = $pdo->prepare('DELETE FROM product WHERE id = ?');
     $stmt->execute([$_POST['delId']]);
 }
@@ -43,13 +43,13 @@ $products = getAllProducts($pdo);
         </div>
         <a href="product.php?id=<?= $product->id; ?>"><?= translate(' Edit '); ?></a>
         <form action="products.php" method="post">
-            <input type="hidden" name="delId" value="<?= $product->id; ?>">
+            <input type="hidden" name="del_id" value="<?= $product->id; ?>">
             <input type="submit" value="<?= translate(' Delete '); ?>">
         </form>
     </div>
 <?php endforeach; ?>
 
-<form action="product.php" method="post">
+<form action="products.php" method="post">
     <input type="hidden" name="logout">
     <input type="submit" value="<?= translate('Logout') ?>">
 </form>
