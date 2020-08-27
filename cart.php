@@ -3,10 +3,6 @@
 require_once 'config.php';
 require_once 'common.php';
 
-$data['name'] = '';
-$data['comments'] = '';
-$data['contact'] = '';
-
 $errors = [];
 
 if (isset($_POST['id']) && in_array($_POST['id'], $_SESSION['cart'])) {
@@ -25,9 +21,9 @@ if ($_SESSION['cart']) {
 }
 
 if (isset($_POST['submit'])) {
-    $data['name'] = strip_tags($_POST['name']);
-    $data['contact'] = strip_tags($_POST['contact']);
-    $data['comments'] = strip_tags($_POST['comments']);
+    $data = array_map('strip_tags', $_POST);
+
+    var_dump($data);
 
     if (!$data['name']) {
         $errors['name'] = 'Name is required!';
@@ -41,7 +37,7 @@ if (isset($_POST['submit'])) {
         $errors['comments'] = 'Comments are required!';
     }
 
-    if (!$errors) {
+    if ($errors) {
 
         $stmt = $pdo->prepare('INSERT INTO orders(name, contact_details, comments) VALUES (?, ?, ?)');
         $stmt->execute([$data['name'], $data['contact'], $data['comments']]);
@@ -63,8 +59,6 @@ if (isset($_POST['submit'])) {
         $message = ob_get_clean();
 
         mail(MANAGER_EMAIL, 'Order', $message, $headers);
-
-        redirect('index');
     }
 }
 
@@ -104,20 +98,20 @@ if (isset($_POST['submit'])) {
 <form action="cart.php" method="post" style="width: 700px; margin: auto">
 
     <label for="name"><?= translate('Name :'); ?> </label>
-    <input type="text" name="name" id="name" value="<?= $data['name'] ?>"><br>
-    <?php if (array_key_exists('name', $errors)): ?>
+    <input type="text" name="name" id="name" value="<?= $data['name'] ?? '' ?>"><br>
+    <?php if (isset($errors['name'])): ?>
         <p style="color: red"> <?= $errors['name'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="contact"> <?= translate('Contact Details :'); ?> </label>
-    <input type="text" name="contact" id="contact" value="<?= $data['contact'] ?>"><br>
-    <?php if (array_key_exists('contact', $errors)): ?>
+    <input type="text" name="contact" id="contact" value="<?= $data['contact'] ?? '' ?>"><br>
+    <?php if (isset($errors['contact'])): ?>
         <p style="color: red"> <?= $errors['contact'] ?> </p> <br>
     <?php endif; ?>
 
     <label for="comments"> <?= translate('Comments :'); ?> </label>
-    <textarea name="comments" id="comments" cols="30" rows="10"><?= $data['comments'] ?></textarea> <br>
-    <?php if (array_key_exists('comments', $errors)): ?>
+    <textarea name="comments" id="comments" cols="30" rows="10"><?= $data['comments'] ?? '' ?></textarea> <br>
+    <?php if (isset($errors['comments'])): ?>
         <p style="color: red"> <?= $errors['comments'] ?> </p> <br>
     <?php endif; ?>
 
