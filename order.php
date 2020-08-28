@@ -11,6 +11,10 @@ $stmt = $pdo->prepare('SELECT * FROM orders WHERE id = ?');
 $stmt->execute([$_GET['id']]);
 $order = $stmt->fetch(PDO::FETCH_OBJ);
 
+if (!$order) {
+    redirect('orders');
+}
+
 $stmt = $pdo->prepare(
     'SELECT img_path, title, description, orders_products.price  
 FROM orders_products INNER JOIN product ON product.id = orders_products.product_id 
@@ -20,9 +24,6 @@ $stmt->execute([$_GET['id']]);
 $products = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 
-if (!$order) {
-    redirect('orders');
-}
 
 ?>
 
