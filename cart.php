@@ -23,8 +23,6 @@ if ($_SESSION['cart']) {
 if (isset($_POST['submit'])) {
     $data = array_map('strip_tags', $_POST);
 
-    var_dump($data);
-
     if (!$data['name']) {
         $errors['name'] = 'Name is required!';
     }
