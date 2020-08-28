@@ -35,7 +35,7 @@ if (isset($_POST['submit'])) {
         $errors['comments'] = 'Comments are required!';
     }
 
-    if ($errors) {
+    if (!$errors) {
 
         $stmt = $pdo->prepare('INSERT INTO orders(name, contact_details, comments) VALUES (?, ?, ?)');
         $stmt->execute([$data['name'], $data['contact'], $data['comments']]);
