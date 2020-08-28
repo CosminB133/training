@@ -57,6 +57,8 @@ if (isset($_POST['submit'])) {
         $message = ob_get_clean();
 
         mail(MANAGER_EMAIL, 'Order', $message, $headers);
+
+        redirect('index');
     }
 }
 
