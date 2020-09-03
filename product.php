@@ -17,12 +17,6 @@ $errors = [];
 if (isset($_POST['submit'])) {
     $data = array_map('strip_tags', $_POST);
 
-    if (!$data['img_url']) {
-        $errors['img'] = 'Url is required';
-    } elseif (!filter_var($data['img_url'], FILTER_VALIDATE_URL)) {
-        $errors['img'] = 'Invalid Url';
-    }
-
     if (!$data['description']) {
         $errors['description'] = 'Description is required';
     }
@@ -40,20 +34,49 @@ if (isset($_POST['submit'])) {
         $errors['title'] = 'Title is required';
     }
 
+    if (isset($_FILES["img"]) && !$_FILES["img"]["error"]) {
+        $allowed_ext = [
+            "jpg" => "image/jpg",
+            "jpeg" => "image/jpeg",
+            "gif" => "image/gif",
+            "png" => "image/png"
+        ];
+
+        $ext = strtolower(pathinfo($_FILES["img"]["name"], PATHINFO_EXTENSION));
+
+        if (!array_key_exists($ext, $allowed_ext)) {
+            $errors['img'] = 'Only JPG, JPEG, PNG, GIF and PNG files are allowed!';
+        }
+
+        if (!in_array($_FILES["img"]["type"], $allowed_ext)) {
+            $errors['img'] = 'Please try again.';
+        }
+    } else {
+        $errors['img'] = 'An valid image is required!';
+    }
+
+
     if (!$errors) {
         if (!isset($_GET['id'])) {
             $stmt = $pdo->prepare(
-                'INSERT INTO product(title, description, price, img_path) VALUES (?, ?, ?, ?)'
+                'INSERT INTO product(title, description, price) VALUES (?, ?, ?)'
             );
-            $success = $stmt->execute([$data['title'], $data['description'], $data['price'], $data['img_url']]);
+            $success = $stmt->execute([$data['title'], $data['description'], $data['price']]);
         } else {
             $stmt = $pdo->prepare(
-                'UPDATE product SET title = ?, description = ?, price = ?, img_path = ?  WHERE id = ?'
+                'UPDATE product SET title = ?, description = ?, price = ? WHERE id = ?'
             );
-            $success = $stmt->execute([$data['title'], $data['description'], $data['price'], $data['img_url'], $_GET['id']]);
+            $success = $stmt->execute(
+                [$data['title'], $data['description'], $data['price'], $_GET['id']]
+            );
         }
 
         if ($success) {
+            $imgId = isset($_GET['id']) ? $_GET['id'] : $pdo->lastInsertId();
+            move_uploaded_file(
+                $_FILES["img"]["tmp_name"],
+                SITE_ROOT . "/img/" . $imgId
+            );
             redirect('products');
         }
     }
@@ -64,20 +87,14 @@ if (isset($_GET['id'])) {
     $stmt->execute([$_GET['id']]);
     $product = $stmt->fetch(PDO::FETCH_OBJ);
 
-    if (!$product) {
-        redirect('products');
-    }
-
     $data['title'] = $product->title;
     $data['description'] = $product->description;
     $data['price'] = $product->price;
-    $data['img_url'] = $product->img_path;
 
     if (isset($_POST['del_comment_id']) && $_POST['del_comment_id']) {
-
         $stmt = $pdo->prepare('SELECT id FROM reviews WHERE id = ?');
         $stmt->execute([$_POST['del_comment_id']]);
-        if ($stmt->fetch(PDO::FETCH_OBJ)){
+        if ($stmt->fetch(PDO::FETCH_OBJ)) {
             $stmt = $pdo->prepare('DELETE FROM reviews WHERE id = ?');
             $stmt->execute([$_POST['del_comment_id']]);
         }
@@ -103,7 +120,9 @@ if (isset($_GET['id'])) {
     <a href="login.php"> <?= translate('Login') ?> </a>
 </nav>
 
-<form action="product.php<?= (isset($_GET['id']))? '?id='.$_GET['id']: '' ?>" method="post">
+<form action="product.php<?= (isset($_GET['id'])) ? '?id=' . $_GET['id'] : '' ?>"
+      method="post"
+      enctype="multipart/form-data">
 
     <label for="title"><?= translate('Title :'); ?> </label>
     <input type="text" name="title" id="title" value="<?= $data['title'] ?? '' ?>"><br>
@@ -123,8 +142,8 @@ if (isset($_GET['id'])) {
         <p style="color: red"> <?= $errors['price'] ?> </p> <br>
     <?php endif; ?>
 
-    <label for="img_url"><?= translate('Image path :'); ?> </label>
-    <input type="text" name="img_url" id="img_url" value="<?= $data['img_url'] ?? '' ?>"><br>
+    <label for="img"><?= translate('Image :'); ?> </label>
+    <input type="file" name="img" id="img"><br>
     <?php if (isset($errors['img'])): ?>
         <p style="color: red"> <?= $errors['img'] ?> </p> <br>
     <?php endif; ?>
