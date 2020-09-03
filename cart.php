@@ -23,22 +23,28 @@ if ($_SESSION['cart']) {
 if (isset($_POST['submit'])) {
     $data = array_map('strip_tags', $_POST);
 
-    if (!$data['name']) {
+    if (!isset($data['name']) || !$data['name']) {
         $errors['name'] = 'Name is required!';
     }
 
-    if (!$data['contact']) {
+    if (!isset($data['name']) || !$data['contact']) {
         $errors['contact'] = 'The contact details field is required!';
     }
 
-    if (!$data['comments']) {
+    if (!isset($data['name']) || !$data['comments']) {
         $errors['comments'] = 'Comments are required!';
     }
 
     if (!$errors) {
+        $sum = array_reduce(
+            $products,
+            function ($sum, $product) {
+                return $sum + $product->price;
+            }
+        );
 
-        $stmt = $pdo->prepare('INSERT INTO orders(name, contact_details, comments) VALUES (?, ?, ?)');
-        $stmt->execute([$data['name'], $data['contact'], $data['comments']]);
+        $stmt = $pdo->prepare('INSERT INTO orders(name, contact_details, comments, price) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$data['name'], $data['contact'], $data['comments'], $sum]);
 
         $orderId = $pdo->lastInsertId();
 
@@ -81,9 +87,10 @@ if (isset($_POST['submit'])) {
         <a href="login.php"> <?= translate('Login') ?> </a>
     <?php endif; ?>
 </nav>
-<?php foreach ($products as $product): ?>
+<?php
+foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
-        <img src="<?= $product->img_path ?>" alt="product image" style="width: 150px; height: 150px">
+        <img src="img/<?= $product->id; ?>" alt="<?= translate('product image') ?>" style="width: 150px; height: 150px">
         <div>
             <h1><?= $product->title; ?></h1>
             <p><?= $product->description; ?></p>
