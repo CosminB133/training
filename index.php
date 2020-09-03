@@ -43,7 +43,7 @@ if ($_SESSION['cart']) {
 </nav>
 <?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
-        <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
+        <img src="img/<?= $product->id; ?>" alt="<?= translate('product image') ?>" style="width: 150px; height: 150px">
         <div>
             <h1><?= $product->title; ?></h1>
             <p><?= $product->description; ?></p>
