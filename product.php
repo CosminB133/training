@@ -17,11 +17,11 @@ $errors = [];
 if (isset($_POST['submit'])) {
     $data = array_map('strip_tags', $_POST);
 
-    if (!$data['description']) {
+    if (!isset($data['description']) || !$data['description']) {
         $errors['description'] = 'Description is required';
     }
 
-    if (!$data['price']) {
+    if (!isset($data['price']) || !$data['price']) {
         $errors['price'] = 'Price is required';
     } elseif (
         !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
@@ -30,7 +30,7 @@ if (isset($_POST['submit'])) {
         $errors['price'] = 'Enter an valid number';
     }
 
-    if (!$data['title']) {
+    if (isset($data['title']) || !$data['title']) {
         $errors['title'] = 'Title is required';
     }
 
