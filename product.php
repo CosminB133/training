@@ -26,7 +26,7 @@ if (isset($_POST['submit'])) {
     } elseif (
     !isset($data['price'])
     || !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
-    || (float)$data['price'] < 0
+    || (float) $data['price'] < 0
     ) {
         $errors['price'] = 'Enter an valid number';
     }
