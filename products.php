@@ -15,6 +15,7 @@ if (!$_SESSION['auth']) {
 if (isset($_POST['del_id']) && validProductId($pdo, $_POST['del_id'])) {
     $stmt = $pdo->prepare('DELETE FROM product WHERE id = ?');
     $stmt->execute([$_POST['del_id']]);
+    unlink(SITE_ROOT . '/img/' . $_POST['del_id']);
 }
 
 $products = getAllProducts($pdo);
@@ -35,7 +36,7 @@ $products = getAllProducts($pdo);
 </nav>
 <?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
-        <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
+        <img src="img/<?= $product->id; ?>" alt="<?= translate('product image') ?>" style="width: 150px; height: 150px">
         <div>
             <h1><?= $product->title; ?></h1>
             <p><?= $product->description; ?></p>
