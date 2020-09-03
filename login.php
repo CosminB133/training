@@ -6,22 +6,24 @@ require_once 'common.php';
 $errors = [];
 
 if (isset($_POST['submit'])) {
+    if (!isset($_POST['username']) || !$_POST['username']) {
+        $errors['username'] = 'Username is required';
+    }
 
-    if ($_POST['username'] === USERNAME && $_POST['password'] === PASSWORD) {
+    if (!isset($_POST['username']) || !$_POST['password']) {
+        $errors['password'] = 'Password is required';
+    }
+
+    if (
+        !$errors
+        && $_POST['username'] === USERNAME
+        && $_POST['password'] === PASSWORD
+    ) {
         $_SESSION['auth'] = true;
         redirect('products');
     }
 
-    if (!$_POST['username']) {
-        $errors['username'] = 'Username is required';
-    }
-
-    if (!$_POST['password']) {
-        $errors['password'] = 'Password is required';
-    }
-
     $errors['form'] = 'Username or password is invalid.';
-
 }
 
 ?>
@@ -39,23 +41,28 @@ if (isset($_POST['submit'])) {
 
     <label for="username"><?= translate('Username :'); ?></label>
     <input type="text" name="username" id="username" value="<?= $_POST['username'] ?? '' ?>"> <br>
-    <?php if (isset($errors['username'])): ?>
+    <?php
+    if (isset($errors['username'])): ?>
         <p style="color: red"> <?= $errors['username'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
     <label for="password"><?= translate('Password :'); ?></label>
     <input type="password" name="password" id="password"> <br>
-    <?php if (isset($errors['password'])): ?>
+    <?php
+    if (isset($errors['password'])): ?>
         <p style="color: red"> <?= $errors['password'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
     <input type="submit" name="submit" value="<?= translate('Login'); ?>">
-    <?php if (isset($errors['form'])): ?>
+    <?php
+    if (isset($errors['form'])): ?>
         <p style="color: red"> <?= $errors['form'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
 </form>
-
 
 
 </body>
