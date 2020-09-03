@@ -24,8 +24,9 @@ if (isset($_POST['submit'])) {
     if (!isset($data['price']) || !$data['price']) {
         $errors['price'] = 'Price is required';
     } elseif (
-        !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
-        || (float)$data['price'] < 0
+    !isset($data['price'])
+    || !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
+    || (float)$data['price'] < 0
     ) {
         $errors['price'] = 'Enter an valid number';
     }
@@ -126,37 +127,48 @@ if (isset($_GET['id'])) {
 
     <label for="title"><?= translate('Title :'); ?> </label>
     <input type="text" name="title" id="title" value="<?= $data['title'] ?? '' ?>"><br>
-    <?php if (array_key_exists('title', $errors)): ?>
+    <?php
+    if (array_key_exists('title', $errors)): ?>
         <p style="color: red"> <?= $errors['title'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
     <label for="description"><?= translate('Description :'); ?> </label>
     <textarea name="description" id="description" cols="30" rows="10"><?= $data['description'] ?? '' ?></textarea><br>
-    <?php if (isset($errors['description'])): ?>
+    <?php
+    if (isset($errors['description'])): ?>
         <p style="color: red"> <?= $errors['description'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
     <label for="price"><?= translate('Price :'); ?> </label>
     <input type="text" name="price" id="price" value="<?= $data['price'] ?? '' ?>"><br>
-    <?php if (isset($errors['price'])): ?>
+    <?php
+    if (isset($errors['price'])): ?>
         <p style="color: red"> <?= $errors['price'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
     <label for="img"><?= translate('Image :'); ?> </label>
     <input type="file" name="img" id="img"><br>
-    <?php if (isset($errors['img'])): ?>
+    <?php
+    if (isset($errors['img'])): ?>
         <p style="color: red"> <?= $errors['img'] ?> </p> <br>
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
-    <?php if (isset($_GET['id'])): ?>
+    <?php
+    if (isset($_GET['id'])): ?>
         <input type="hidden" name="edit_id" value="<?= $_GET['id']; ?>">
-    <?php endif; ?>
+    <?php
+    endif; ?>
 
     <input type="submit" name="submit" value="<?= isset($_GET['id']) ? translate('Edit') : translate('Add'); ?>">
 
 </form>
 
-<?php foreach ($reviews as $review): ?>
+<?php
+foreach ($reviews as $review): ?>
     <div>
         <h1><?= $review->rating ?></h1>
         <p><?= $review->comment ?></p>
@@ -166,6 +178,7 @@ if (isset($_GET['id'])) {
         <input type="hidden" name="del_comment_id" value="<?= $review->id ?>">
         <input type="submit" value="<?= translate('Delete') ?>">
     </form>
-<?php endforeach; ?>
+<?php
+endforeach; ?>
 </body>
 </html>
