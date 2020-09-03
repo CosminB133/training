@@ -13,25 +13,28 @@ if (!$product) {
     redirect('index');
 }
 
+$data = [];
 $errors = [];
 
 if (isset($_POST['submit'])) {
-    $comment = strip_tags($_POST['comment']);
-    $rating = (int)strip_tags($_POST['rating']);
+    $data = array_map('strip_tags', $_POST);
 
-    if (!$comment) {
+    if (!isset($data['comment']) || !$data['comment']) {
         $errors['comment'] = 'Comment is required!';
     }
 
-    if (!$rating) {
+    if (!isset($data['rating']) || !$data['rating']){
         $errors['rating'] = 'PLease select an rating!';
-    } elseif ($rating > 5 || $rating < 1) {
-        $errors['rating'] = 'PLease insert a valid rating!';
+    } else {
+        $data['rating'] = (int) $data['rating'];
+        if ($data['rating'] > 5 || $data['rating'] < 1) {
+            $errors['rating'] = 'PLease insert a valid rating!';
+        }
     }
 
     if (!$errors) {
         $stmt = $pdo->prepare('INSERT INTO reviews (comment, rating, product_id) VALUES (?, ?, ?)');
-        $stmt->execute([$comment, $rating, $product->id]);
+        $stmt->execute([$data['comment'], $data['rating'], $product->id]);
     }
 }
 $reviews = getReviews($pdo, $product->id);
@@ -49,7 +52,7 @@ $reviews = getReviews($pdo, $product->id);
 </head>
 <body>
 <div style="display: flex; width: 700px; margin: auto">
-    <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
+    <img src="<?= $product->img_path; ?>" alt="<?= translate('product image') ?>" style="width: 150px; height: 150px">
     <div>
         <h1><?= $product->title; ?></h1>
         <p><?= $product->description; ?></p>
@@ -64,13 +67,11 @@ $reviews = getReviews($pdo, $product->id);
         <option value="4"><?= translate('4') ?></option>
         <option value="5"><?= translate('5') ?></option>
     </select>
-    <?php
-    if (array_key_exists('rating', $errors)): ?>
+    <?php if (isset($errors['rating'])): ?>
         <p style="color: red"><?= $errors['rating'] ?></p>
-    <?php
-    endif; ?>
+    <?php endif; ?>
     <input type="text" name="comment" placeholder="<?= translate('Leave your comments here'); ?>">
-    <?php if (array_key_exists('comment', $errors)): ?>
+    <?php if (isset($errors['comment'])): ?>
         <p style="color: red"><?= $errors['comment'] ?></p>
     <?php endif; ?>
     <input type="submit" name="submit" value="<?= translate('Submit review'); ?>">
