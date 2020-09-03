@@ -16,14 +16,12 @@ if (!$order) {
 }
 
 $stmt = $pdo->prepare(
-    'SELECT img_path, title, description, orders_products.price  
-FROM orders_products INNER JOIN product ON product.id = orders_products.product_id 
+    'SELECT product.id, title, description, orders_products.price  
+FROM  product INNER JOIN orders_products ON product.id = orders_products.product_id 
 WHERE orders_products.order_id = ?'
 );
 $stmt->execute([$_GET['id']]);
 $products = $stmt->fetchAll(PDO::FETCH_OBJ);
-
-
 
 ?>
 
@@ -43,7 +41,7 @@ $products = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 <?php foreach ($products as $product): ?>
     <div style="display: flex; width: 700px; margin: auto">
-        <img src="<?= $product->img_path; ?>" alt="product image" style="width: 150px; height: 150px">
+        <img src="img/<?= $product->id; ?>" alt="<?= translate('product image') ?>" style="width: 150px; height: 150px">
         <div>
             <h1><?= $product->title; ?></h1>
             <p><?= $product->description; ?></p>
