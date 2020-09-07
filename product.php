@@ -75,8 +75,8 @@ if (isset($_POST['submit'])) {
         if ($success) {
             $imgId = isset($_GET['id']) ? $_GET['id'] : $pdo->lastInsertId();
             move_uploaded_file(
-                $_FILES["img"]["tmp_name"],
-                SITE_ROOT . "/img/" . $imgId
+                $_FILES['img']['tmp_name'],
+                SITE_ROOT . '/img/' . $imgId
             );
             redirect('products');
         }
