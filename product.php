@@ -35,21 +35,21 @@ if (isset($_POST['submit'])) {
         $errors['title'] = 'Title is required';
     }
 
-    if (isset($_FILES["img"]) && !$_FILES["img"]["error"]) {
+    if (isset($_FILES['img']) && !$_FILES['img']['error']) {
         $allowed_ext = [
-            "jpg" => "image/jpg",
-            "jpeg" => "image/jpeg",
-            "gif" => "image/gif",
-            "png" => "image/png"
+            'jpg' => 'image/jpg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'png' => 'image/png'
         ];
 
-        $ext = strtolower(pathinfo($_FILES["img"]["name"], PATHINFO_EXTENSION));
+        $ext = strtolower(pathinfo($_FILES['img']['name'], PATHINFO_EXTENSION));
 
-        if (!array_key_exists($ext, $allowed_ext)) {
+        if (!isset($allowed_ext[$ext])) {
             $errors['img'] = 'Only JPG, JPEG, PNG, GIF and PNG files are allowed!';
         }
 
-        if (!in_array($_FILES["img"]["type"], $allowed_ext)) {
+        if (!in_array($_FILES['img']['type'], $allowed_ext)) {
             $errors['img'] = 'Please try again.';
         }
     } else {
