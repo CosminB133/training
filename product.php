@@ -24,9 +24,9 @@ if (isset($_POST['submit'])) {
     if (!isset($data['price']) || !$data['price']) {
         $errors['price'] = 'Price is required';
     } elseif (
-    !isset($data['price'])
-    || !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
-    || (float) $data['price'] < 0
+        !isset($data['price'])
+        || !filter_var($data['price'], FILTER_VALIDATE_FLOAT)
+        || (float)$data['price'] < 0
     ) {
         $errors['price'] = 'Enter an valid number';
     }
@@ -36,7 +36,7 @@ if (isset($_POST['submit'])) {
     }
 
     if (isset($_FILES['img']) && !$_FILES['img']['error']) {
-        $allowed_ext = [
+        $allowedExt = [
             'jpg' => 'image/jpg',
             'jpeg' => 'image/jpeg',
             'gif' => 'image/gif',
@@ -49,7 +49,7 @@ if (isset($_POST['submit'])) {
             $errors['img'] = 'Only JPG, JPEG, PNG, GIF and PNG files are allowed!';
         }
 
-        if (!in_array($_FILES['img']['type'], $allowed_ext)) {
+        if (!in_array($_FILES['img']['type'], $allowedExt)) {
             $errors['img'] = 'Please try again.';
         }
     } else {
