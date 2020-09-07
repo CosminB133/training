@@ -4,7 +4,7 @@ require_once 'config.php';
 require_once 'common.php';
 
 $stmt = $pdo->prepare(
-    'SELECT orders.id, orders.creation_date, orders.name, orders.contact_details, orders.comments, price FROM orders'
+    'SELECT * FROM orders'
 );
 $stmt->execute();
 $orders = $stmt->fetchAll(PDO::FETCH_OBJ);
